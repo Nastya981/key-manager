@@ -1,6 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
-from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.security import (
@@ -22,13 +21,9 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
     summary="Регистрация нового пользователя",
 )
 async def register(user_data: UserRegister) -> UserResponse:
-    """
-    Регистрирует нового пользователя.
-    Проверяет, что email не занят. Хеширует пароль.
-    """
+    """Регистрирует нового пользователя. Проверяет email, хеширует пароль."""
     users = get_collection("users")
 
-    # Проверяем, что email не занят
     existing = await users.find_one({"email": user_data.email})
     if existing is not None:
         raise HTTPException(
@@ -36,11 +31,9 @@ async def register(user_data: UserRegister) -> UserResponse:
             detail="User with this email already exists",
         )
 
-    # Хешируем пароль
     hashed = hash_password(user_data.password)
+    now = datetime.now(timezone.utc)
 
-    # Создаём документ
-    now = datetime.utcnow()
     doc = {
         "email": user_data.email,
         "hashed_password": hashed,
@@ -48,7 +41,6 @@ async def register(user_data: UserRegister) -> UserResponse:
         "is_active": True,
     }
 
-    # Сохраняем в MongoDB
     result = await users.insert_one(doc)
 
     return UserResponse(
@@ -65,16 +57,11 @@ async def register(user_data: UserRegister) -> UserResponse:
     summary="Вход и получение JWT",
 )
 async def login(user_data: UserLogin) -> TokenResponse:
-    """
-    Проверяет email и пароль. Возвращает JWT-токен.
-    """
+    """Проверяет email и пароль. Возвращает JWT-токен."""
     users = get_collection("users")
 
-    # Ищем пользователя
     user = await users.find_one({"email": user_data.email})
 
-    # ВАЖНО: одинаковое сообщение для "не найден" и "неверный пароль" —
-    # чтобы нельзя было перебором узнать, какие email зарегистрированы.
     if user is None or not verify_password(user_data.password, user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -88,7 +75,5 @@ async def login(user_data: UserLogin) -> TokenResponse:
             detail="User is inactive",
         )
 
-    # Создаём JWT
     access_token = create_access_token(str(user["_id"]))
-
     return TokenResponse(access_token=access_token)

@@ -6,17 +6,13 @@ from app.core.security import decode_access_token
 from app.db.mongodb import get_collection
 
 
-# HTTPBearer — стандартная схема авторизации в Swagger
 security = HTTPBearer()
 
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> dict:
-    """
-    Достаёт текущего пользователя из JWT-токена.
-    Используется как зависимость: current_user: dict = Depends(get_current_user)
-    """
+    """Достаёт текущего пользователя из JWT-токена."""
     token = credentials.credentials
     payload = decode_access_token(token)
 
@@ -34,7 +30,6 @@ async def get_current_user(
             detail="Invalid token payload",
         )
 
-    # Ищем пользователя в MongoDB
     users = get_collection("users")
     try:
         user = await users.find_one({"_id": ObjectId(user_id)})

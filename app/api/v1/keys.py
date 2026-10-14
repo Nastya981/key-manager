@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -23,17 +23,15 @@ async def create_key(
     current_user: dict = Depends(get_current_user),
 ) -> KeyCreatedResponse:
     """
-    Создаёт новый API-ключ для текущего пользователя.
-    ВАЖНО: сам ключ возвращается только один раз при создании!
-    В базе хранится только его SHA-256-хеш.
+    Создаёт новый API-ключ.
+    Сам ключ возвращается ТОЛЬКО ОДИН РАЗ. В БД хранится только его SHA-256-хеш.
     """
     keys = get_collection("keys")
 
-    # Генерируем ключ и сразу хешируем
     raw_key = generate_api_key()
     hashed_key = hash_api_key(raw_key)
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     doc = {
         "name": key_data.name,
         "description": key_data.description,
