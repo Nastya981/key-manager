@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.core.config import settings
 from app.db.mongodb import connect_to_mongo, close_mongo_connection, get_database
+from app.api.v1.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -38,3 +39,7 @@ async def health_db():
     db = get_database()
     result = await db.command("ping")
     return {"status": "ok", "mongodb": result}
+
+
+# Подключаем роутеры
+app.include_router(auth_router)
