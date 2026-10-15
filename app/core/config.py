@@ -2,12 +2,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Настройки приложения."""
+    """
+    Настройки приложения.
 
-    MONGODB_URL: str = "mongodb://admin:admin123@localhost:27017/"
-    MONGODB_DB_NAME: str = "key_manager"
+    Критичные значения (MONGODB_URL, MONGODB_DB_NAME, SECRET_KEY) обязательны —
+    без них приложение не запустится, чтобы случайно не уйти в продакшен
+    с дефолтным SECRET_KEY.
+    """
 
-    SECRET_KEY: str = "change-me-to-a-very-secret-key"
+    # Обязательные — без значений по умолчанию
+    MONGODB_URL: str
+    MONGODB_DB_NAME: str
+    SECRET_KEY: str
+
+    # Не критичные — с разумными дефолтами
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 

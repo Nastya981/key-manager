@@ -1,13 +1,13 @@
 from datetime import datetime, timezone
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.api.deps import get_current_user
 from app.core.security import generate_api_key, hash_api_key
 from app.db.mongodb import get_collection
 from app.models.key import KeyCreate, KeyCreatedResponse, KeyListItem
-from app.api.deps import get_current_user
-
 
 router = APIRouter(prefix="/keys", tags=["Keys"])
 
@@ -24,7 +24,8 @@ async def create_key(
 ) -> KeyCreatedResponse:
     """
     Создаёт новый API-ключ.
-    Сам ключ возвращается ТОЛЬКО ОДИН РАЗ. В БД хранится только его SHA-256-хеш.
+    Сам ключ возвращается ТОЛЬКО ОДИН РАЗ.
+    В БД хранится только его SHA-256-хеш.
     """
     keys = get_collection("keys")
 
@@ -97,8 +98,11 @@ async def get_key(
 
     try:
         oid = ObjectId(key_id)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid key ID")
+    except InvalidId as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid key ID",
+        ) from exc
 
     doc = await keys.find_one(
         {
@@ -135,8 +139,11 @@ async def revoke_key(
 
     try:
         oid = ObjectId(key_id)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid key ID")
+    except InvalidId as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid key ID",
+        ) from exc
 
     result = await keys.update_one(
         {"_id": oid, "user_id": str(current_user["_id"])},
