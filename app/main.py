@@ -7,6 +7,7 @@ from app.db.mongodb import connect_to_mongo, close_mongo_connection, get_databas
 from app.api.v1.auth import router as auth_router
 from app.api.v1.keys import router as keys_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Управляет жизненным циклом приложения."""

@@ -69,15 +69,17 @@ async def list_keys(
 
     result = []
     async for doc in cursor:
-        result.append(KeyListItem(
-            id=str(doc["_id"]),
-            name=doc["name"],
-            description=doc.get("description"),
-            created_at=doc["created_at"],
-            expires_at=doc.get("expires_at"),
-            is_active=doc.get("is_active", True),
-            last_used_at=doc.get("last_used_at"),
-        ))
+        result.append(
+            KeyListItem(
+                id=str(doc["_id"]),
+                name=doc["name"],
+                description=doc.get("description"),
+                created_at=doc["created_at"],
+                expires_at=doc.get("expires_at"),
+                is_active=doc.get("is_active", True),
+                last_used_at=doc.get("last_used_at"),
+            )
+        )
     return result
 
 
@@ -98,10 +100,12 @@ async def get_key(
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid key ID")
 
-    doc = await keys.find_one({
-        "_id": oid,
-        "user_id": str(current_user["_id"]),
-    })
+    doc = await keys.find_one(
+        {
+            "_id": oid,
+            "user_id": str(current_user["_id"]),
+        }
+    )
 
     if doc is None:
         raise HTTPException(status_code=404, detail="Key not found")

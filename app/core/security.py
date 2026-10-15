@@ -14,6 +14,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ============ Пароли пользователей ============
 
+
 def hash_password(password: str) -> str:
     """Хеширует пароль пользователя."""
     return pwd_context.hash(password)
@@ -25,6 +26,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 # ============ API-ключи ============
+
 
 def generate_api_key() -> str:
     """Генерирует случайный API-ключ (32 байта, URL-safe)."""
@@ -42,6 +44,7 @@ def verify_api_key(api_key: str, hashed_key: str) -> bool:
 
 
 # ============ JWT-токены ============
+
 
 def create_access_token(user_id: str) -> str:
     """Создаёт JWT-токен для пользователя."""

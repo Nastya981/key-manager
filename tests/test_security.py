@@ -11,11 +11,12 @@ from app.core.security import (
 
 # ============ Хеширование паролей ============
 
+
 def test_hash_password_returns_string():
     h = hash_password("mypassword")
     assert isinstance(h, str)
     assert h.startswith("$2b$")  # bcrypt-префикс
-    assert h != "mypassword"     # не открытый пароль
+    assert h != "mypassword"  # не открытый пароль
 
 
 def test_verify_password_correct():
@@ -36,6 +37,7 @@ def test_hash_password_different_each_time():
 
 
 # ============ API-ключи ============
+
 
 def test_generate_api_key_unique():
     keys = {generate_api_key() for _ in range(100)}
@@ -65,6 +67,7 @@ def test_verify_api_key():
 
 
 # ============ JWT ============
+
 
 def test_create_access_token():
     token = create_access_token("user-123")

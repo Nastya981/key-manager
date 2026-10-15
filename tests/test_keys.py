@@ -94,13 +94,21 @@ async def test_revoke_key(client, auth_headers):
 async def test_users_isolated_keys(client):
     """Ключи одного пользователя не видны другому."""
     email1 = f"u1_{uuid.uuid4().hex[:8]}@example.com"
-    await client.post("/auth/register", json={"email": email1, "password": "password123"})
-    login1 = await client.post("/auth/login", json={"email": email1, "password": "password123"})
+    await client.post(
+        "/auth/register", json={"email": email1, "password": "password123"}
+    )
+    login1 = await client.post(
+        "/auth/login", json={"email": email1, "password": "password123"}
+    )
     headers1 = {"Authorization": f"Bearer {login1.json()['access_token']}"}
 
     email2 = f"u2_{uuid.uuid4().hex[:8]}@example.com"
-    await client.post("/auth/register", json={"email": email2, "password": "password123"})
-    login2 = await client.post("/auth/login", json={"email": email2, "password": "password123"})
+    await client.post(
+        "/auth/register", json={"email": email2, "password": "password123"}
+    )
+    login2 = await client.post(
+        "/auth/login", json={"email": email2, "password": "password123"}
+    )
     headers2 = {"Authorization": f"Bearer {login2.json()['access_token']}"}
 
     created = await client.post("/keys", json={"name": "User1 Key"}, headers=headers1)
